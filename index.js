@@ -1,5 +1,4 @@
-require('dotenv').config()
-const PORT=4000 
+
 const mongoose = require("mongoose");
 const { ApolloServer,gql } = require("apollo-server");
 
@@ -232,6 +231,6 @@ const server = new ApolloServer({
   resolvers
 });
  
-server.listen({ port: process.env.PORT || 4000 }).then(({ url }) => {
+server.listen(process.env.PORT).then(({ url }) => {
   console.log(`🚀 Server ready at ${url}`);
 });
