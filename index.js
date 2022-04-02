@@ -2,8 +2,8 @@
 const mongoose = require('mongoose'); 
 const Book = require('./Model/Book')
 const express = require('express')
-const { ApolloServer } = require('apollo-server-express')
- 
+const { ApolloServer,gql } = require('apollo-server-express')
+ const cors = require('cors')
 // A schema is a collection of type definitions (hence "typeDefs")
 // that together define the "shape" of queries that are executed against
 // your data.
@@ -12,7 +12,7 @@ const connectDB = async () => {
 		await mongoose.connect("mongodb+srv://hoangthach1402:hoangthach123@cluster0.mmtet.mongodb.net/myFirstDatabase?retryWrites=true&w=majority", {
 		
 			useUnifiedTopology: true,
-			useFindAndModify: false
+		
 		})
 
 		console.log('MongoDB connected')
@@ -61,10 +61,21 @@ const resolvers = {
   },
 };
 
+
+const server = new ApolloServer({
+	typeDefs,
+	resolvers,
+	
+})
 const app = express()
 app.use(cors())
-server.applyMiddleware({ app })
+async function startApp(){
+ await server.start();
+  await server.applyMiddleware({ app })
+   
+ await app.listen({ port: process.env.PORT || 4000 }, () =>
+    console.log(`Server ready at http://localhost:4000${server.graphqlPath}`)
+  )
 
-app.listen({ port: process.env.PORT || 4000 }, () =>
-	console.log(`Server ready at http://localhost:4000${server.graphqlPath}`)
-)
+}
+startApp()
