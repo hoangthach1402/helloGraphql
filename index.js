@@ -4,20 +4,22 @@ const Book = require('./Model/Book')
 // A schema is a collection of type definitions (hence "typeDefs")
 // that together define the "shape" of queries that are executed against
 // your data.
-mongoose.connect(
-    "mongodb+srv://hoangthach1402:hoangthach123@cluster0.mmtet.mongodb.net/myFirstDatabase?retryWrites=true&w=majority",
-    {
-      useNewUrlParser: true,
-      // useCreateIndex: true,
-    },
-    (err) => {
-      if (!err) {
-        console.log("MongoDB Connection Succeeded.");
-      } else {
-        console.log("Error in DB connection: " + err);
-      }
-    }
-  );
+const connectDB = async () => {
+	try {
+		await mongoose.connect("mongodb+srv://hoangthach1402:hoangthach123@cluster0.mmtet.mongodb.net/myFirstDatabase?retryWrites=true&w=majority", {
+		
+			useUnifiedTopology: true,
+			useFindAndModify: false
+		})
+
+		console.log('MongoDB connected')
+	} catch (error) {
+		console.log(error.message)
+		process.exit(1)
+	}
+}
+
+connectDB()
 
 const typeDefs = gql`
   # Comments in GraphQL strings (such as this one) start with the hash (#) symbol.
@@ -56,9 +58,10 @@ const resolvers = {
   },
 };
 
-const server = new ApolloServer({ typeDefs, resolvers });
+const app = express()
+app.use(cors())
+server.applyMiddleware({ app })
 
-// The `listen` method launches a web server.
-server.listen(process.env.PORT).then(({ url }) => {
-  console.log(`🚀  Server ready at ${url}`);
-});
+app.listen({ port: process.env.PORT || 4000 }, () =>
+	console.log(`Server ready at http://localhost:4000${server.graphqlPath}`)
+)
