@@ -1,7 +1,7 @@
 // const { ApolloServer, gql } = require('apollo-server');
 const mongoose = require('mongoose'); 
 const Book = require('./Model/Book')
-const
+// const
 // const express = require('express')
 // const { ApolloServer,gql } = require('apollo-server-express')
 //  const cors = require('cors')
@@ -68,12 +68,7 @@ const resolvers = {
 };
 
 
-const server = new ApolloServer({
-	typeDefs,
-	resolvers,
-	
-})
-// const PORT=4000 
+// PORT=4000 
 
 
 const server = new ApolloServer({ typeDefs, resolvers });
