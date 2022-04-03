@@ -1,9 +1,11 @@
 // const { ApolloServer, gql } = require('apollo-server');
 const mongoose = require('mongoose'); 
 const Book = require('./Model/Book')
-const express = require('express')
-const { ApolloServer,gql } = require('apollo-server-express')
- const cors = require('cors')
+const
+// const express = require('express')
+// const { ApolloServer,gql } = require('apollo-server-express')
+//  const cors = require('cors')
+const { ApolloServer, gql } = require('apollo-server')
  require('dotenv').config()
 // A schema is a collection of type definitions (hence "typeDefs")
 // that together define the "shape" of queries that are executed against
@@ -46,16 +48,16 @@ const typeDefs = gql`
     books: [Book]
   }
 `;
-// const books = [
-//     {
-//       title: 'The Awakening',
-//       author: 'Kate Chopin',
-//     },
-//     {
-//       title: 'City of Glass',
-//       author: 'Paul Auster',
-//     },
-//   ];
+const books = [
+    {
+      title: 'The Awakening',
+      author: 'Kate Chopin',
+    },
+    {
+      title: 'City of Glass',
+      author: 'Paul Auster',
+    },
+  ];
 
 const resolvers = {
   Query: {
@@ -71,16 +73,12 @@ const server = new ApolloServer({
 	resolvers,
 	
 })
-const PORT=4000 
-const app = express()
-app.use(cors())
-async function startApp(){
- await server.start();
-  await server.applyMiddleware({ app })
-   
- await app.listen( process.env.PORT,() =>
-    console.log(`Server ready at http://localhost:4000${server.graphqlPath}`)
-  )
+// const PORT=4000 
 
-}
-startApp()
+
+const server = new ApolloServer({ typeDefs, resolvers });
+
+// The `listen` method launches a web server.
+server.listen(process.env.PORT||4000).then(({ url }) => {
+  console.log(`🚀  Server ready at ${url}`);
+});
