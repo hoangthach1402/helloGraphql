@@ -236,7 +236,7 @@ const server = new ApolloServer({
 // PORT=4000 
 
 
-const server = new ApolloServer({ typeDefs, resolvers });
+// const server = new ApolloServer({ typeDefs, resolvers });
 
 // The `listen` method launches a web server.
 server.listen(process.env.PORT||4000).then(({ url }) => {
