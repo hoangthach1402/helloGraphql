@@ -7,9 +7,11 @@ const { ApolloServer,gql } = require('apollo-server-express')
 // A schema is a collection of type definitions (hence "typeDefs")
 // that together define the "shape" of queries that are executed against
 // your data.
+// const DATA_URL ="mongodb+srv://hoangthach1402:hoangthach123@cluster0.mmtet.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
 const connectDB = async () => {
+
 	try {
-		await mongoose.connect("mongodb+srv://hoangthach1402:hoangthach123@cluster0.mmtet.mongodb.net/myFirstDatabase?retryWrites=true&w=majority", {
+		await mongoose.connect(process.env.DATA_URL, {
 		
 			useUnifiedTopology: true,
 		
