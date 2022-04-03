@@ -1,6 +1,10 @@
 // const { ApolloServer, gql } = require('apollo-server');
 const mongoose = require('mongoose'); 
 const Book = require('./Model/Book')
+const Author = require('./Model/Author')
+const Order = require('./Model/Order')
+const Product = require('./Model/Product')
+const User = require('./Model/User')
 
 const { ApolloServer, gql } = require('apollo-server')
  require('dotenv').config()
