@@ -1,10 +1,7 @@
 // const { ApolloServer, gql } = require('apollo-server');
 const mongoose = require('mongoose'); 
 const Book = require('./Model/Book')
-// const
-// const express = require('express')
-// const { ApolloServer,gql } = require('apollo-server-express')
-//  const cors = require('cors')
+
 const { ApolloServer, gql } = require('apollo-server')
  require('dotenv').config()
 // A schema is a collection of type definitions (hence "typeDefs")
