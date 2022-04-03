@@ -77,7 +77,7 @@ async function startApp(){
  await server.start();
   await server.applyMiddleware({ app })
    
- await app.listen({ port: process.env.PORT || 4000 }, () =>
+ await app.listen( process.env.PORT,() =>
     console.log(`Server ready at http://localhost:4000${server.graphqlPath}`)
   )
 
