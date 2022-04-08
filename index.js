@@ -82,7 +82,7 @@ type Query {
 }
 type Mutation {
   
-    createBook(name:String!, genre:String! ,authorId:ID!):Book 
+    createBook(name:String!, genre:String! ,authorId:String!):Book 
     createAuthor(name:String!,age:Int!):Author 
     editAuthor(id:ID!,name:String,age:Int):Author 
     editBook(id:ID!,name:String!,genre:String!,authorId:String!):Book 
@@ -94,8 +94,9 @@ type Mutation {
    createProduct(name:String!,stock:Int!,type:String!,img:String!,price:Float!):Product 
    editProduct(id:ID!,name:String!,stock:Int!,type:String!,img:String!,price:Float!):Product 
    deleteProduct(id:ID!): Product
-   createOrder(userId:ID!,productId:ID!,payying:Int!):Order 
-   editOrder(id:ID!, productId:ID!, payying:Int!):Order 
+   createOrder(userId:ID!,productId:String!,payying:Int!):Order 
+   editOrder(id:ID!, productId:String!, payying:Int!):Order 
+   deleteOrder(id:ID!):Order
 }   
  `;
 
@@ -222,10 +223,21 @@ console.log(parent);
      return await product.save() ;
     
     },
-     
+    deleteProduct: async (parent, args) => {
+      return await Product.findByIdAndDelete(args.id)
+      },
+      
     createOrder: async (parent, args) => {
       const newOrder = await new Order(args);
       return await newOrder.save();
+    },
+    editOrder: async (parent, args) => {
+    const order = await Order.findById(args.id) ;
+    order.productId =args.productId ;
+    return await order.save();
+    },
+    deleteOrder:async(parent,args)=>{
+    return await Order.findByIdAndDelete(args.id)
     },
     createAuthor: async (parent, args) => {
       const newOrder = await new Author(args);
@@ -235,9 +247,7 @@ console.log(parent);
       const newOrder = await new Book(args);
       return await newOrder.save();
     },
-    deleteProduct: async (parent, args) => {
-    return await Product.findByIdAndDelete(args.id)
-    },
+  
     
     editAuthor: async (parent, args) => {
       //  console.log(args);
