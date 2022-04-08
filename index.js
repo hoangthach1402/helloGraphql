@@ -81,8 +81,8 @@ type Query {
   product(id: ID!):Product
 }
 type Mutation {
- 
-    createBook(name:String!, genre:String! ,authorId:String!):Book 
+  
+    createBook(name:String!, genre:String! ,authorId:ID!):Book 
     createAuthor(name:String!,age:Int!):Author 
     editAuthor(id:ID!,name:String,age:Int):Author 
     editBook(id:ID!,name:String!,genre:String!,authorId:String!):Book 
@@ -126,12 +126,14 @@ console.log(parent);
   },
   Book: {
     author: async ({ authorId }, args) => {
+      //  console.log(authorId)
       const result = await Author.findById(authorId);
       return result;
     },
   },
   Author: {
     books: async ({ _id }, args) => {
+      // console.log(_id);
       const result = await Book.find({ authorId: _id });
       return result;
     },
@@ -232,6 +234,10 @@ console.log(parent);
   },
 };
 const server = new ApolloServer({ 
+  cors: {
+		origin: '*',			// <- allow request from all domains
+		credentials: true},
+    
   typeDefs, 
   resolvers
 });
