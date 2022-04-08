@@ -8,6 +8,7 @@ var orderSchema = new mongoose.Schema({
         required:true,
     },
     productId:String,
+    payying:Number,
       
 });
   

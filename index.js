@@ -34,7 +34,7 @@ connectDB()
 const typeDefs = gql`
 type Author{
     id:ID
-    name :String 
+    name:String 
     age:Int 
     books:[Book]
 }
@@ -45,11 +45,10 @@ type Book {
     author: Author
 }
 type User {
-   id:ID
-   name:String 
-   email:String 
-   mobile:String 
-   password:String 
+  id:ID
+   name:String! 
+   mobile:String! 
+   address:String! 
    orders:[Order]
 } 
 type Product{
@@ -65,6 +64,7 @@ type Order {
   id:ID 
   user:User
   products:[Product]
+  payying:Int
 } 
 type Query {
     book(id:ID!):Book 
@@ -88,9 +88,14 @@ type Mutation {
     editBook(id:ID!,name:String!,genre:String!,authorId:String!):Book 
     deleteBook(id:ID!) :Book 
     deleteAuthor(id:ID!):Author 
-   createUser(name:String!, email:String!, mobile:String!, password:String!):User 
+    createUser(name:String!, mobile:String!, address:String!):User 
+    editUser(id:ID!,name:String!,mobile:String!,address:String!):User 
+    deleteUser(id:ID!):User 
    createProduct(name:String!,stock:Int!,type:String!,img:String!,price:Float!):Product 
-   createOrder(userId:ID!,productId:ID!):Order 
+   editProduct(id:ID!,name:String!,stock:Int!,type:String!,img:String!,price:Float!):Product 
+   deleteProduct(id:ID!): Product
+   createOrder(userId:ID!,productId:ID!,payying:Int!):Order 
+   editOrder(id:ID!, productId:ID!, payying:Int!):Order 
 }   
  `;
 
@@ -193,10 +198,31 @@ console.log(parent);
       const newUser = await new User(args);
       return await newUser.save();
     },
+    editUser: async (parent, args) => {
+      const user = await User.findById(args.id);
+      user.name = args.name 
+      user.mobile =args.mobile 
+      user.address = args.address  
+      return await user.save();
+    },
+    deleteUser: async(parent,args)=>{
+      return await User.findByIdAndDelete(args.id)
+    },
     createProduct: async (parent, args) => {
       const newProduct = await new Product(args);
       return await newProduct.save();
     },
+    editProduct: async (parent, args) => {
+     const product = await Product.findById(args.id) ;
+     product.name = args.name 
+     product.type = args.type 
+     product.img  =args.img
+     product.stock = parseInt(args.stock)
+     product.price = parseInt(args.price)
+     return await product.save() ;
+    
+    },
+     
     createOrder: async (parent, args) => {
       const newOrder = await new Order(args);
       return await newOrder.save();
@@ -209,6 +235,10 @@ console.log(parent);
       const newOrder = await new Book(args);
       return await newOrder.save();
     },
+    deleteProduct: async (parent, args) => {
+    return await Product.findByIdAndDelete(args.id)
+    },
+    
     editAuthor: async (parent, args) => {
       //  console.log(args);
       let editAuthor = await Author.findByIdAndUpdate(args.id);
