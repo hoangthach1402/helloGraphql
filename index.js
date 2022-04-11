@@ -66,6 +66,15 @@ type Order {
   products:[Product]
   payying:Int
 } 
+input InputProduct {
+  id:ID
+  name:String 
+  img:String 
+  stock:Int 
+  price:Float
+  type:String
+}
+
 type Query {
     book(id:ID!):Book 
     author(id:ID!):Author 
@@ -94,7 +103,8 @@ type Mutation {
    createProduct(name:String!,stock:Int!,type:String!,img:String!,price:Float!):Product 
    editProduct(id:ID!,name:String!,stock:Int!,type:String!,img:String!,price:Float!):Product 
    deleteProduct(id:ID!): Product
-   createOrder(userId:ID!,productId:String!,payying:Int!):Order 
+  #  createOrder(userId:ID!,productId:String!,payying:Int!):Order 
+   createOrder(userId:ID!,input: [InputProduct]!,payying:Int!):Order 
    editOrder(id:ID!, productId:String!, payying:Int!):Order 
    deleteOrder(id:ID!):Order
 }   
@@ -150,15 +160,10 @@ console.log(parent);
       const user = await User.findById(parent.userId);
       return user;
     },
-    products: async (parent, args) => {
-      let listProducts = parent.productId.split(",");
-      let newListProduct = [];
-      for (var i = 0; i < listProducts.length; i++) {
-        var item = await Product.findById(listProducts[i]);
-        newListProduct.push(item);
-      }
-      return newListProduct;
-    },
+    products: async ({productId}, args) => {
+    // return     
+      return productId;
+  },
   },
 
   Query: {
@@ -228,9 +233,14 @@ console.log(parent);
       },
       
     createOrder: async (parent, args) => {
-      const newOrder = await new Order(args);
+      const a = JSON.parse(JSON.stringify(args));
+      // console.log(a);
+      const newOrder = await new Order({...a,productId:a.input});
       return await newOrder.save();
     },
+      
+      
+     
     editOrder: async (parent, args) => {
     const order = await Order.findById(args.id) ;
     order.productId =args.productId ;
@@ -279,7 +289,8 @@ const server = new ApolloServer({
 		credentials: true},
     
   typeDefs, 
-  resolvers
+  resolvers,
+  Introspection:true
 });
 
 

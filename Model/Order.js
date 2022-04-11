@@ -7,10 +7,11 @@ var orderSchema = new mongoose.Schema({
         type:String,
         required:true,
     },
-    productId:String,
+    productId:[],
     payying:Number,
-      
+
 });
+      
   
 
 //Export the model
