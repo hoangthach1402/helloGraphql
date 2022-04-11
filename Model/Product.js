@@ -28,7 +28,10 @@ var productSchema = new mongoose.Schema({
         required:true,
      
     },
-});
+},
+{ timestamps: true }   
+
+);
   
 
 //Export the model

@@ -12,7 +12,10 @@ var userSchema = new mongoose.Schema({
     address:{
         type:String,
     },
-});
+},
+{ timestamps: true }   
+
+);
 
 //Export the model
 module.exports = mongoose.model('User', userSchema);
