@@ -151,19 +151,7 @@ const resolvers = {
       }
 
       return listOrder
-      // console.log(order)
-      // let listOrder = [];
-      // for (var i = 0; i < order.length; i++) {
-      //   let listOrderProduct = order[i].productId.split(",");
-      //   for (var j = 0; j < listOrderProduct.length; j++) {
-      //     if (listOrderProduct[j] == productId) {
-      //       listOrder.push(order[i]);
-      //     }
-      //   }
-      // }
-
-      // return listOrder;
-      // console.log(parent);
+  
     },
   },
   //tim san pham nam trong order nao ?
