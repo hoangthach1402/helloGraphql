@@ -5,6 +5,7 @@ const Author = require("./Model/Author");
 const Order = require("./Model/Order");
 const Product = require("./Model/Product");
 const User = require("./Model/User");
+const moment = require('moment')
 
 const { ApolloServer, gql } = require("apollo-server");
 require("dotenv").config();
@@ -62,6 +63,7 @@ const typeDefs = gql`
     user: User
     products: [Product]
     payying: Int
+    dayCreated:String
   }
   input InputProduct {
     id: ID
@@ -180,9 +182,11 @@ const resolvers = {
       // return
       return productId;
     },
+   
   },
 
   Query: {
+    
     books: async () => {
       return await Book.find();
     },
@@ -250,10 +254,10 @@ const resolvers = {
     createOrder: async (parent, args) => {
       const a = JSON.parse(JSON.stringify(args));
       // console.log(a);
-      const newOrder = await new Order({ ...a, productId: a.input });
+      const newOrder = await new Order({ ...a, productId: a.input,dayCreated:moment().format('L')});
       return await newOrder.save();
     },
-
+    
     editOrder: async (parent, args) => {
       const order = await Order.findById(args.id);
       order.productId = args.productId;
