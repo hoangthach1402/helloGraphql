@@ -1,11 +1,9 @@
-// const { ApolloServer, gql } = require('apollo-server');
+const {GraphQLDateTime } = require('graphql-iso-date');
 const mongoose = require("mongoose");
 const { v1: uuidv1 } = require('uuid');
 const Order = require("./Model/Order");
 const Product = require("./Model/Product");
 const User = require("./Model/User");
-const moment = require("moment");
-// console.log(uuidv1());
 const { ApolloServer, gql } = require("apollo-server");
 require("dotenv").config();
 // A schema is a collection of type definitions (hence "typeDefs")
@@ -29,7 +27,7 @@ const connectDB = async () => {
 connectDB();
 
 const typeDefs = gql`
-
+   scalar Date 
 
   type User {
     id: ID
@@ -37,6 +35,7 @@ const typeDefs = gql`
     mobile: String!
     address: String!
     orders: [Order]
+    createdAt: Date!
   }
   type Product {
     id: ID
@@ -46,6 +45,7 @@ const typeDefs = gql`
     type: String
     img: String
     orders: [Order]
+    createdAt: Date!
   }
   type ProductOrder {
     id: ID
@@ -63,7 +63,7 @@ const typeDefs = gql`
     user: User
     products: [ProductOrder]
     payying: Int
-    dayCreated: String
+    createdAt: Date!
   }
   input InputProduct {
     id:ID
@@ -76,16 +76,16 @@ const typeDefs = gql`
   }
 
   type Query {
-  
-
     users: [User]
     user(id: ID!): User
-
     orders: [Order]
     order(id: ID!): Order
     products: [Product]
     product(id: ID!): Product
   }
+   
+
+
   type Mutation {
     createUser(name: String!, mobile: String!, address: String!): User
     editUser(id: ID!, name: String!, mobile: String!, address: String!): User
@@ -114,6 +114,7 @@ const typeDefs = gql`
 `;
 
 const resolvers = {
+  Date: GraphQLDateTime,
   User: {
     orders: async (parent, args) => {
       //   let listOrder =[]
@@ -161,6 +162,7 @@ const resolvers = {
     return JSON.parse(JSON.stringify(parent.productId));
     },
   },
+   
 
   Query: {
  
@@ -218,19 +220,33 @@ const resolvers = {
 
     createOrder: async (parent, args) => {
       const a = JSON.parse(JSON.stringify(args));
-      console.log(a);
-     
+      // const products = await Product.findByIdAndUpdate();
       const userId = a.userId;
       const listProductId = a.input;
-      
+      for(var i=0; i<listProductId.length;i++){
+       
+       let productId = listProductId[i].productId 
+       let stockOrder = listProductId[i].stock 
+       let productDB = await Product.findByIdAndUpdate(productId);
+       let stockDB = productDB.stock
+        productDB.stock = stockDB -parseInt(stockOrder);
+        await productDB.save();
+      }
       const payyingInput = parseInt(a.payying);
-      const newOrder = await new Order({
-        userId: userId,
-        productId: listProductId,
-        payying: payyingInput,
-      });
-      return await newOrder.save();
+     const newOrder = await new Order({
+       userId: userId,
+       productId: listProductId,
+       payying: payyingInput,
+     });
+     
+     return await newOrder.save();
+     
     },
+       
+      
+      
+     
+        
 
     editOrder: async (parent, args) => {
       const order = await Order.findById(args.id);
