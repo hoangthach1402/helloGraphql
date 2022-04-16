@@ -5,7 +5,7 @@ const Author = require("./Model/Author");
 const Order = require("./Model/Order");
 const Product = require("./Model/Product");
 const User = require("./Model/User");
-const moment = require('moment')
+const moment = require("moment");
 
 const { ApolloServer, gql } = require("apollo-server");
 require("dotenv").config();
@@ -58,19 +58,28 @@ const typeDefs = gql`
     img: String
     orders: [Order]
   }
+  type ProductOrder {
+    id: ID
+    name: String
+    price: Float
+    stock: Int
+    type: String
+    img: String
+  }
+
   type Order {
     id: ID
     user: User
-    products: [Product]
+    products: [ProductOrder]
     payying: Int
-    dayCreated:String
+    dayCreated: String
   }
   input InputProduct {
     id: ID
-    name: String
-    img: String
     stock: Int
     price: Float
+    name: String
+    img: String
     type: String
   }
 
@@ -89,12 +98,6 @@ const typeDefs = gql`
     product(id: ID!): Product
   }
   type Mutation {
-    createBook(name: String!, genre: String!, authorId: String!): Book
-    createAuthor(name: String!, age: Int!): Author
-    editAuthor(id: ID!, name: String, age: Int): Author
-    editBook(id: ID!, name: String!, genre: String!, authorId: String!): Book
-    deleteBook(id: ID!): Book
-    deleteAuthor(id: ID!): Author
     createUser(name: String!, mobile: String!, address: String!): User
     editUser(id: ID!, name: String!, mobile: String!, address: String!): User
     deleteUser(id: ID!): User
@@ -116,7 +119,7 @@ const typeDefs = gql`
     deleteProduct(id: ID!): Product
     #  createOrder(userId:ID!,productId:String!,payying:Int!):Order
     createOrder(userId: ID!, input: [InputProduct]!, payying: Int!): Order
-    editOrder(id: ID!, productId: String!, payying: Int!): Order
+    editOrder(id: ID!, input: [InputProduct]!, payying: Int!): Order
     deleteOrder(id: ID!): Order
   }
 `;
@@ -141,64 +144,39 @@ const resolvers = {
       let parseOrderProduct = order.map((o) => {
         return JSON.parse(JSON.stringify(o.productId).match(pattern).join(""));
       });
-      
-      let listOrder =[]
-      for(var i=0 ; i<order.length;i++){
-      let listProducts=  JSON.parse(JSON.stringify(order[i].productId).match(pattern).join(""));
-      for(var j=0; j<listProducts.length;j++){
-        if(listProducts[j].id === (parent._id).toString()){
-          listOrder.push(order[i])
+
+      let listOrder = [];
+      for (var i = 0; i < order.length; i++) {
+        let listProducts = JSON.parse(
+          JSON.stringify(order[i].productId).match(pattern).join("")
+        );
+        for (var j = 0; j < listProducts.length; j++) {
+          if (listProducts[j].id === parent._id.toString()) {
+            listOrder.push(order[i]);
+          }
         }
       }
-      }
 
-      return listOrder
-  
+      return listOrder;
     },
   },
-  //tim san pham nam trong order nao ?
-  //     [{order:1,}]
-  Book: {
-    author: async ({ authorId }, args) => {
-      //  console.log(authorId)
-      const result = await Author.findById(authorId);
-      return result;
-    },
-  },
-  Author: {
-    books: async ({ _id }, args) => {
-      // console.log(_id);
-      const result = await Book.find({ authorId: _id });
-      return result;
-    },
-  },
+
   Order: {
     user: async (parent, args) => {
       // console.log(parent)
       const user = await User.findById(parent.userId);
       return user;
     },
-    products: async ({ productId }, args) => {
-      // return
-      return productId;
+    products: async (parent, args) => {
+    return JSON.parse(JSON.stringify(parent.productId));
     },
-   
   },
 
   Query: {
-    
     books: async () => {
       return await Book.find();
     },
-    book: async (parent, { id }) => {
-      return await Book.findById(id);
-    },
-    authors: async () => {
-      return await Author.find();
-    },
-    author: async (parent, { id }) => {
-      return await Author.findById(id);
-    },
+
     users: async () => {
       return await User.find({});
     },
@@ -254,10 +232,19 @@ const resolvers = {
     createOrder: async (parent, args) => {
       const a = JSON.parse(JSON.stringify(args));
       // console.log(a);
-      const newOrder = await new Order({ ...a, productId: a.input,dayCreated:moment().format('L')});
+      console.log(a);
+      // console.log(typeof a.input);
+      const userId = a.userId;
+      const productId = a.input;
+      const payyingInput = parseInt(a.payying);
+      const newOrder = await new Order({
+        userId: userId,
+        productId: productId,
+        payying: payyingInput,
+      });
       return await newOrder.save();
     },
-    
+
     editOrder: async (parent, args) => {
       const order = await Order.findById(args.id);
       order.productId = args.productId;
@@ -265,37 +252,6 @@ const resolvers = {
     },
     deleteOrder: async (parent, args) => {
       return await Order.findByIdAndDelete(args.id);
-    },
-    createAuthor: async (parent, args) => {
-      const newOrder = await new Author(args);
-      return await newOrder.save();
-    },
-    createBook: async (parent, args) => {
-      const newOrder = await new Book(args);
-      return await newOrder.save();
-    },
-
-    editAuthor: async (parent, args) => {
-      //  console.log(args);
-      let editAuthor = await Author.findByIdAndUpdate(args.id);
-      editAuthor.name = args.name;
-      editAuthor.age = args.age;
-      editAuthor.save();
-      return editAuthor;
-    },
-    editBook: async (parent, args) => {
-      let editBook = await Book.findByIdAndUpdate(args.id);
-      (editBook.name = args.name),
-        (editBook.genre = args.genre),
-        (editBook.authorId = args.authorId);
-      await editBook.save();
-      return editBook;
-    },
-    deleteAuthor: async (parent, args) => {
-      return await Author.findByIdAndDelete(args.id);
-    },
-    deleteBook: async (parent, args) => {
-      return await Book.findByIdAndDelete(args.id);
     },
   },
 };
