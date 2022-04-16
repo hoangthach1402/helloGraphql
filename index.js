@@ -1,12 +1,11 @@
 // const { ApolloServer, gql } = require('apollo-server');
 const mongoose = require("mongoose");
-const Book = require("./Model/Book");
-const Author = require("./Model/Author");
+const { v1: uuidv1 } = require('uuid');
 const Order = require("./Model/Order");
 const Product = require("./Model/Product");
 const User = require("./Model/User");
 const moment = require("moment");
-
+// console.log(uuidv1());
 const { ApolloServer, gql } = require("apollo-server");
 require("dotenv").config();
 // A schema is a collection of type definitions (hence "typeDefs")
@@ -30,18 +29,8 @@ const connectDB = async () => {
 connectDB();
 
 const typeDefs = gql`
-  type Author {
-    id: ID
-    name: String
-    age: Int
-    books: [Book]
-  }
-  type Book {
-    id: ID
-    name: String
-    genre: String
-    author: Author
-  }
+
+
   type User {
     id: ID
     name: String!
@@ -60,12 +49,14 @@ const typeDefs = gql`
   }
   type ProductOrder {
     id: ID
+    productId:String
     name: String
     price: Float
     stock: Int
     type: String
     img: String
   }
+    
 
   type Order {
     id: ID
@@ -75,7 +66,8 @@ const typeDefs = gql`
     dayCreated: String
   }
   input InputProduct {
-    id: ID
+    id:ID
+    productId: String
     stock: Int
     price: Float
     name: String
@@ -84,10 +76,7 @@ const typeDefs = gql`
   }
 
   type Query {
-    book(id: ID!): Book
-    author(id: ID!): Author
-    books: [Book]
-    authors: [Author]
+  
 
     users: [User]
     user(id: ID!): User
@@ -128,14 +117,15 @@ const resolvers = {
   User: {
     orders: async (parent, args) => {
       //   let listOrder =[]
-      console.log(parent);
+      // console.log(parent);
       let orderList = await Order.find({ userId: parent._id });
-      //   console.log(orderList);
+        console.log(orderList);
       return orderList;
     },
   },
   Product: {
     orders: async (parent, args) => {
+      
       let productId = parent._id;
       const order = await Order.find();
 
@@ -144,14 +134,14 @@ const resolvers = {
       let parseOrderProduct = order.map((o) => {
         return JSON.parse(JSON.stringify(o.productId).match(pattern).join(""));
       });
-
+      console.log(parseOrderProduct);
       let listOrder = [];
       for (var i = 0; i < order.length; i++) {
         let listProducts = JSON.parse(
           JSON.stringify(order[i].productId).match(pattern).join("")
         );
         for (var j = 0; j < listProducts.length; j++) {
-          if (listProducts[j].id === parent._id.toString()) {
+          if (listProducts[j].productId === parent._id.toString()) {
             listOrder.push(order[i]);
           }
         }
@@ -173,10 +163,7 @@ const resolvers = {
   },
 
   Query: {
-    books: async () => {
-      return await Book.find();
-    },
-
+ 
     users: async () => {
       return await User.find({});
     },
@@ -231,15 +218,15 @@ const resolvers = {
 
     createOrder: async (parent, args) => {
       const a = JSON.parse(JSON.stringify(args));
-      // console.log(a);
       console.log(a);
-      // console.log(typeof a.input);
+     
       const userId = a.userId;
-      const productId = a.input;
+      const listProductId = a.input;
+      
       const payyingInput = parseInt(a.payying);
       const newOrder = await new Order({
         userId: userId,
-        productId: productId,
+        productId: listProductId,
         payying: payyingInput,
       });
       return await newOrder.save();
