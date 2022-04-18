@@ -117,10 +117,9 @@ const resolvers = {
   Date: GraphQLDateTime,
   User: {
     orders: async (parent, args) => {
-      //   let listOrder =[]
-      // console.log(parent);
-      let orderList = await Order.find({ userId: parent._id });
-        console.log(orderList);
+     
+      let orderList = await Order.find({ userId: parent._id }).sort({_id:-1});
+   
       return orderList;
     },
   },
@@ -135,7 +134,7 @@ const resolvers = {
       let parseOrderProduct = order.map((o) => {
         return JSON.parse(JSON.stringify(o.productId).match(pattern).join(""));
       });
-      console.log(parseOrderProduct);
+     
       let listOrder = [];
       for (var i = 0; i < order.length; i++) {
         let listProducts = JSON.parse(
@@ -147,7 +146,7 @@ const resolvers = {
           }
         }
       }
-
+      listOrder.sort((a,b)=>b.createdAt - a.createdAt)
       return listOrder;
     },
   },
@@ -173,7 +172,7 @@ const resolvers = {
       return await User.findById(id);
     },
     orders: async () => {
-      return await Order.find({});
+      return await Order.find({}).sort({_id:-1});
     },
 
     order: async (parent, { id }) => {
