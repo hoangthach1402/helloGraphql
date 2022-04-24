@@ -28,6 +28,8 @@ var productSchema = new mongoose.Schema({
         required:true,
      
     },
+    description:String,
+    
 },
 { timestamps: true }   
 

@@ -28,7 +28,7 @@ connectDB();
 
 const typeDefs = gql`
    scalar Date 
-
+ 
   type User {
     id: ID
     name: String!
@@ -64,6 +64,8 @@ const typeDefs = gql`
     products: [ProductOrder]
     payying: Int
     createdAt: Date!
+    notes:String 
+    status:String 
   }
   input InputProduct {
     id:ID
@@ -74,7 +76,11 @@ const typeDefs = gql`
     img: String
     type: String
   }
-
+ type length{
+  products:Int! 
+  orders:Int! 
+  users:Int!
+ }
   type Query {
     users: [User]
     user(id: ID!): User
@@ -82,12 +88,18 @@ const typeDefs = gql`
     order(id: ID!): Order
     products: [Product]
     product(id: ID!): Product
+    searchUserByMobile(mobile:String!):[User]
+    getLength:length
+    searchProduct(productName:String!):[Product]
+    sortByTypeProuct(type:String!):[Product]
+    sortByStockLessThan(stock:Int!):[Product]
+    filterOrderToday(daytime:Int!):[Order]
   }
    
 
 
   type Mutation {
-    createUser(name: String!, mobile: String!, address: String!): User
+  createUser(name: String!, mobile: String!, address: String!): User
     editUser(id: ID!, name: String!, mobile: String!, address: String!): User
     deleteUser(id: ID!): User
     createProduct(
@@ -115,6 +127,7 @@ const typeDefs = gql`
 
 const resolvers = {
   Date: GraphQLDateTime,
+  
   User: {
     orders: async (parent, args) => {
      
@@ -123,6 +136,8 @@ const resolvers = {
       return orderList;
     },
   },
+ 
+    
   Product: {
     orders: async (parent, args) => {
       
@@ -164,9 +179,48 @@ const resolvers = {
    
 
   Query: {
- 
+    filterOrderToday:async(parent,{daytime})=>{
+    // console.log(daytime)
+     const oneday = new Date(new Date().getTime() - 60*1000*1440*daytime).toISOString()
+     return await Order.find({createdAt:{$gte:oneday}}).limit(10).sort({createdAt:-1})
+    }, 
+    sortByStockLessThan:async (parent, {stock}) => {
+    console.log(stock)
+    const listProducts = await Product.find({stock:{$lte:stock}}).limit(10).sort({name:1})
+    return listProducts
+    },
+    sortByTypeProuct:async(parent,{type})=>{
+     const pattern = new RegExp(type,'i')
+     return await Product.find({type:{$regex:pattern}}).limit(15).sort({name:1})
+    }, 
+   getLength :async(parent,args)=>{
+    const lengthProduct = await Product.count()
+    const lengthUser= await User.count()
+    const lengthOrder = await Order.count()  
+    return ({products:lengthProduct,orders:lengthOrder,users:lengthUser}) 
+  },
+    searchProduct:async(parent,{productName})=>{
+      const pattern =new RegExp(productName,'i');
+      return await Product.find({name:{$regex:pattern}}).limit(3).sort({name:1})
+    },
+    searchUserByMobile:async (parent,{mobile})=>{
+      // console.log(mobile.slice(0,1))
+      const isMobile = mobile.slice(0,1)=="0";
+      
+      if(isMobile){
+       const searchString = mobile ; 
+       const pattern =new RegExp(searchString);
+       console.log(pattern)
+      return await User.find({mobile:{$regex:pattern}}).limit(2).sort({name:1})
+      }else{
+       const searchString = mobile ; 
+       const pattern =new RegExp(searchString,'i');
+       console.log(pattern)
+      return await User.find({name:{$regex:pattern}}).limit(2).sort({name:1});
+      }
+     },
     users: async () => {
-      return await User.find({});
+      return await User.find({}).sort({_id:-1});
     },
     user: async (parent, { id }) => {
       return await User.findById(id);

@@ -9,6 +9,8 @@ var orderSchema = new mongoose.Schema({
     },
     productId:[],
     payying:Number,
+    notes:String ,
+    status:String,
 },
 { timestamps: true }   
 );
