@@ -1,13 +1,11 @@
 {
   "name": "thanhquang",
   "version": "1.0.0",
-  "engines": {
-    "node": "18.x",
-    "npm": "7.x"
-  },
+
   "description": "",
   "main": "index.js",
   "scripts": {
+  
     "heroku-prebuild": "echo This runs before Heroku installs dependencies.",
     "heroku-postbuild": "echo This runs after Heroku installs dependencies, but before Heroku prunes and caches dependencies.",
     "heroku-cleanup": "echo This runs after Heroku prunes and caches dependencies.",
