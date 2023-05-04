@@ -12,6 +12,7 @@ var userSchema = new mongoose.Schema({
     address:{
         type:String,
     },
+    
 
     
 },
